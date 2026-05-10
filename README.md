@@ -23,6 +23,7 @@ En todas las selecciones:
 ## Funciones
 
 - Dashboard de progreso dentro de la seccion Album.
+- Selector de vistas en Album: equipos, todas las laminas y marcadas por grupos.
 - Busqueda por pais, seccion, grupo y lamina.
 - Filtro por equipo/seccion.
 - Filtro por grupo.

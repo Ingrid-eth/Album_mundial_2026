@@ -5,6 +5,7 @@
 const STORAGE_KEY = 'album_mundial_2026_data';
 let state = loadState();
 let currentTab = 'home';
+let albumViewMode = 'teams';
 let currentTeamCode = null;
 let sortMode = 'progress-desc';
 let searchQuery = '';
@@ -32,6 +33,34 @@ const TEAM_FLAG_CODES = {
 
 function getAlbumSections() {
   return [...ADDITIONAL_SECTIONS, ...TEAMS_DATA];
+}
+
+function getOrderedAlbumSections() {
+  return [...ADDITIONAL_SECTIONS, ...TEAMS_DATA];
+}
+
+function getStickerEntries({ ownedOnly = false } = {}) {
+  const entries = [];
+  getOrderedAlbumSections().forEach(section => {
+    section.stickers.forEach((sticker, index) => {
+      const stickerState = getStickerState(sticker.code);
+      if (ownedOnly && !stickerState.have) return;
+      entries.push({
+        section,
+        sticker: {
+          ...sticker,
+          collectionName: section.name,
+          collectionContext: `${getSectionGroupLabel(section)} · ${section.name}`,
+          collectionCode: section.code,
+          collectionGroup: section.group,
+          collectionGroupLabel: getSectionGroupLabel(section),
+          sortIndex: index
+        },
+        state: stickerState
+      });
+    });
+  });
+  return entries;
 }
 
 function getSectionVisual(section) {
@@ -255,7 +284,7 @@ function renderHome() {
   renderProfile();
   renderProgressCircle();
   renderDashboardCards();
-  renderTeamsGrid();
+  renderAlbumView();
 }
 
 function renderProfile() {
@@ -312,6 +341,92 @@ function renderTeamsGrid() {
   updateSortIndicator();
 }
 
+function renderAlbumView() {
+  document.querySelectorAll('.album-view').forEach(view => view.classList.remove('active'));
+  const activeView = document.getElementById(`album-view-${albumViewMode}`);
+  if (activeView) activeView.classList.add('active');
+
+  document.querySelectorAll('.album-view-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.view === albumViewMode);
+  });
+
+  const sortBar = document.getElementById('sort-bar');
+  if (sortBar) sortBar.classList.toggle('is-muted', albumViewMode !== 'teams');
+
+  if (albumViewMode === 'teams') renderTeamsGrid();
+  if (albumViewMode === 'all') renderAllStickersView();
+  if (albumViewMode === 'owned') renderOwnedThumbnailsView();
+
+  updateHeaderOffset();
+  updateSortIndicator();
+}
+
+function renderAllStickersView() {
+  const container = document.getElementById('all-stickers-board');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const entries = getStickerEntries();
+  entries.forEach(({ sticker, state: stickerState }) => {
+    const card = makeStickerCard(sticker, stickerState);
+    card.classList.add('collection-sticker-card');
+    card.dataset.cardStyle = 'collection-sticker-card';
+    container.appendChild(card);
+  });
+  applyCollectionSearch();
+}
+
+function renderOwnedThumbnailsView() {
+  const container = document.getElementById('owned-groups-board');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const ownedEntries = getStickerEntries({ ownedOnly: true });
+  if (ownedEntries.length === 0) {
+    container.innerHTML = `<div class="empty-state owned-empty"><div class="empty-icon">☆</div>Aún no tienes fichas marcadas</div>`;
+    applyCollectionSearch();
+    return;
+  }
+
+  const groups = {};
+  ownedEntries.forEach(entry => {
+    const groupKey = entry.section.group;
+    if (!groups[groupKey]) {
+      groups[groupKey] = {
+        label: getSectionGroupLabel(entry.section),
+        sort: getGroupSortValue(entry.section),
+        entries: []
+      };
+    }
+    groups[groupKey].entries.push(entry);
+  });
+
+  Object.values(groups)
+    .sort((a, b) => a.sort.localeCompare(b.sort))
+    .forEach(group => {
+      const section = document.createElement('section');
+      section.className = 'owned-group-section';
+      section.dataset.group = group.entries[0]?.section.group || '';
+      section.innerHTML = `
+        <div class="owned-group-header">
+          <h3>${group.label}</h3>
+          <span>${group.entries.length} marcadas</span>
+        </div>
+        <div class="owned-mini-grid"></div>
+      `;
+      const grid = section.querySelector('.owned-mini-grid');
+      group.entries.forEach(({ sticker, state: stickerState }) => {
+        const card = makeStickerCard(sticker, stickerState);
+        card.classList.add('owned-mini-card');
+        card.dataset.cardStyle = 'owned-mini-card';
+        grid.appendChild(card);
+      });
+      container.appendChild(section);
+    });
+
+  applyCollectionSearch();
+}
+
 function makeTeamCards(teams, showGroup) {
   const frag = document.createDocumentFragment();
   teams.forEach(t => frag.appendChild(makeTeamCard(t)));
@@ -332,7 +447,7 @@ function makeTeamCard(team) {
   const positions = [...new Set(team.stickers.map(s => s.position).filter(Boolean))];
 
   const card = document.createElement('div');
-  card.className = 'country-card';
+  card.className = 'country-card collection-search-card';
   card.dataset.search = searchable;
   card.dataset.team = team.code;
   card.dataset.group = team.group;
@@ -366,7 +481,10 @@ function makeTeamCard(team) {
 // ── TAB 2: FILL ───────────────────────────────────────────
 
 function applyCollectionSearch() {
-  const cards = document.querySelectorAll('.country-card');
+  const activeView = document.querySelector('.album-view.active');
+  const cards = activeView
+    ? activeView.querySelectorAll('.collection-search-card')
+    : document.querySelectorAll('.collection-search-card');
   let matches = 0;
   cards.forEach(card => {
     const textMatch = !searchQuery || card.dataset.search.includes(searchQuery);
@@ -377,11 +495,17 @@ function applyCollectionSearch() {
     card.classList.toggle('dimmed', false);
     if (isMatch) matches++;
   });
+  activeView?.querySelectorAll('.owned-group-section').forEach(section => {
+    const visibleCards = [...section.querySelectorAll('.collection-search-card')]
+      .some(card => !card.hidden);
+    section.hidden = !visibleCards;
+  });
   const clearBtn = document.getElementById('clear-filters');
   if (clearBtn) clearBtn.disabled = !searchQuery && !activeTeamFilter && !activeGroupFilter;
   const counter = document.getElementById('results-count');
   if (counter) {
-    counter.textContent = `${matches} de ${cards.length} secciones`;
+    const label = albumViewMode === 'teams' ? 'secciones' : 'láminas';
+    counter.textContent = `${matches} de ${cards.length} ${label}`;
   }
 }
 
@@ -455,11 +579,24 @@ function makeStickerCard(sticker, st, onAfterToggle) {
   const card = document.createElement('div');
   card.className = [
     'sticker-card',
+    sticker.collectionName ? 'collection-search-card' : '',
     st.have ? 'owned' : '',
     repeated ? 'repeated' : '',
     sticker.type === 'shield' || sticker.type === 'group' || sticker.type === 'album-special' || sticker.type === 'sponsor' ? 'special' : ''
   ].filter(Boolean).join(' ');
   card.dataset.code = sticker.code;
+  card.dataset.team = sticker.collectionCode || '';
+  card.dataset.group = sticker.collectionGroup || '';
+  card.dataset.search = [
+    sticker.code,
+    sticker.name,
+    sticker.type || '',
+    sticker.position || '',
+    sticker.collectionName || '',
+    sticker.collectionContext || '',
+    sticker.collectionCode || '',
+    sticker.collectionGroupLabel || ''
+  ].join(' ').toLowerCase();
 
   let posClass = '';
   let posLabel = '';
@@ -478,6 +615,7 @@ function makeStickerCard(sticker, st, onAfterToggle) {
   card.innerHTML = `
     ${typeLabel ? `<span class="sticker-type-badge">${typeLabel}</span>` : ''}
     <span class="sticker-name">${sticker.name}</span>
+    ${sticker.collectionContext ? `<span class="sticker-context">${sticker.collectionContext}</span>` : ''}
     ${posLabel ? `<span class="sticker-pos ${posClass}">${posLabel}</span>` : ''}
     ${repeated ? `<span class="repeat-badge">+${st.count - 1}</span>` : ''}
     <button class="minus-btn" data-code="${sticker.code}">−</button>
@@ -488,6 +626,8 @@ function makeStickerCard(sticker, st, onAfterToggle) {
     const newRepeated = newSt.have && newSt.count > 1;
     card.className = [
       'sticker-card',
+      sticker.collectionName ? 'collection-search-card' : '',
+      card.dataset.cardStyle || '',
       newSt.have ? 'owned' : '',
       newRepeated ? 'repeated' : '',
       sticker.type === 'shield' || sticker.type === 'group' || sticker.type === 'album-special' || sticker.type === 'sponsor' ? 'special' : ''
@@ -539,7 +679,7 @@ function updateHomeProgress() {
   if (currentTab === 'home') {
     renderProgressCircle();
     renderDashboardCards();
-    renderTeamsGrid();
+    renderAlbumView();
   }
 }
 
@@ -1243,13 +1383,20 @@ function init() {
   });
   document.getElementById('clear-filters').addEventListener('click', clearFilters);
 
+  document.querySelectorAll('.album-view-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      albumViewMode = btn.dataset.view;
+      renderAlbumView();
+    });
+  });
+
   // Sort buttons
   document.querySelectorAll('.sort-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       sortMode = btn.dataset.sort;
       document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      renderTeamsGrid();
+      renderAlbumView();
       updateSortIndicator();
     });
   });

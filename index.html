@@ -99,7 +99,21 @@
         </div>
       </section>
 
-      <div class="teams-grid" id="teams-grid"></div>
+      <div class="album-view-switch" id="album-view-switch" aria-label="Vista del álbum">
+        <button class="album-view-btn active" type="button" data-view="teams">Equipos</button>
+        <button class="album-view-btn" type="button" data-view="all">Todas</button>
+        <button class="album-view-btn" type="button" data-view="owned">Marcadas</button>
+      </div>
+
+      <div class="album-view active" id="album-view-teams">
+        <div class="teams-grid" id="teams-grid"></div>
+      </div>
+      <div class="album-view" id="album-view-all">
+        <div class="stickers-board" id="all-stickers-board"></div>
+      </div>
+      <div class="album-view" id="album-view-owned">
+        <div class="owned-groups-board" id="owned-groups-board"></div>
+      </div>
     </section>
 
     <section id="tab-trades" class="tab-content">

@@ -257,6 +257,9 @@ button { cursor: pointer; }
 }
 .sort-btn:hover { color: var(--text-primary); }
 .sort-btn.active { color: #000; }
+.sort-bar.is-muted {
+  opacity: 0.52;
+}
 
 .dashboard-overview {
   max-width: 1230px;
@@ -468,6 +471,37 @@ button { cursor: pointer; }
   font-weight: 900;
 }
 
+.album-view-switch {
+  max-width: 1228px;
+  margin: 18px auto 0;
+  padding: 0 24px;
+  display: flex;
+  gap: 8px;
+}
+.album-view-btn {
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 900;
+  transition: var(--transition);
+}
+.album-view-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--border-accent);
+}
+.album-view-btn.active {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #000;
+  box-shadow: 0 10px 28px rgba(246,201,14,0.18);
+}
+.album-view { display: none; }
+.album-view.active { display: block; }
+
 .teams-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -597,6 +631,75 @@ button { cursor: pointer; }
   box-shadow: 0 0 8px rgba(59,130,246,0.5);
 }
 .progress-fill.complete { background: var(--green-complete); box-shadow: 0 0 8px rgba(16,185,129,0.45); }
+
+.stickers-board {
+  max-width: 1228px;
+  margin: 0 auto;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 12px;
+}
+.collection-sticker-card {
+  min-height: 118px;
+}
+.sticker-context {
+  max-width: 100%;
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.15;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.owned-groups-board {
+  max-width: 1228px;
+  margin: 0 auto;
+  padding: 24px;
+  display: grid;
+  gap: 18px;
+}
+.owned-group-section {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 16px;
+}
+.owned-group-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.owned-group-header h3 {
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 900;
+}
+.owned-group-header span {
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 900;
+}
+.owned-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(82px, 1fr));
+  gap: 10px;
+}
+.owned-mini-card {
+  min-height: 92px;
+  padding: 10px 6px;
+}
+.owned-mini-card .sticker-context {
+  font-size: 9px;
+}
+.owned-mini-card .sticker-type-badge {
+  display: none;
+}
+.owned-empty {
+  max-width: 520px;
+  margin: 0 auto;
+}
 
 .bottom-nav {
   position: fixed;
@@ -1170,7 +1273,26 @@ button { cursor: pointer; }
   .dashboard-ring::before { width: 130px; height: 130px; }
   .dashboard-ring-inner { width: 102px; height: 102px; }
   .dashboard-metric-card { min-height: 126px; }
+  .album-view-switch {
+    padding: 0 16px;
+    overflow-x: auto;
+  }
+  .album-view-btn {
+    flex: 1 0 auto;
+    padding: 0 12px;
+  }
   .teams-grid { grid-template-columns: 1fr; padding: 16px; }
+  .stickers-board {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding: 16px;
+    gap: 10px;
+  }
+  .owned-groups-board {
+    padding: 16px;
+  }
+  .owned-mini-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
   .trades-actions {
     left: 16px;
     right: 16px;
