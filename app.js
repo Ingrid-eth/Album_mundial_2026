@@ -91,6 +91,15 @@ function getGroupSortValue(section) {
   return `0-${section.group}`;
 }
 
+function getTeamStickerNumber(code) {
+  const match = code.match(/^[A-Z]{3}(\d{1,2})$/);
+  return match ? String(Number(match[1])) : '';
+}
+
+function isNumericStickerSearch() {
+  return /^\d{1,2}$/.test(searchQuery);
+}
+
 // ── STATE MANAGEMENT ──────────────────────────────────────
 
 function loadState() {
@@ -356,6 +365,8 @@ function renderAlbumView() {
   if (albumViewMode === 'teams') renderTeamsGrid();
   if (albumViewMode === 'all') renderAllStickersView();
   if (albumViewMode === 'owned') renderOwnedThumbnailsView();
+  if (albumViewMode === 'shields') renderFilteredStickersView('shields-stickers-board', sticker => sticker.type === 'shield');
+  if (albumViewMode === 'teamPhotos') renderFilteredStickersView('team-photos-stickers-board', sticker => sticker.type === 'group');
 
   updateHeaderOffset();
   updateSortIndicator();
@@ -366,13 +377,33 @@ function renderAllStickersView() {
   if (!container) return;
   container.innerHTML = '';
 
-  const entries = getStickerEntries();
+  const entries = getStickerEntries().filter(({ sticker }) => {
+    if (!isNumericStickerSearch()) return true;
+    return getTeamStickerNumber(sticker.code) === String(Number(searchQuery));
+  });
   entries.forEach(({ sticker, state: stickerState }) => {
     const card = makeStickerCard(sticker, stickerState);
     card.classList.add('collection-sticker-card');
     card.dataset.cardStyle = 'collection-sticker-card';
     container.appendChild(card);
   });
+  applyCollectionSearch();
+}
+
+function renderFilteredStickersView(containerId, predicate) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '';
+
+  getStickerEntries()
+    .filter(({ sticker }) => predicate(sticker))
+    .forEach(({ sticker, state: stickerState }) => {
+      const card = makeStickerCard(sticker, stickerState);
+      card.classList.add('collection-sticker-card');
+      card.dataset.cardStyle = 'collection-sticker-card';
+      container.appendChild(card);
+    });
+
   applyCollectionSearch();
 }
 
@@ -485,9 +516,13 @@ function applyCollectionSearch() {
   const cards = activeView
     ? activeView.querySelectorAll('.collection-search-card')
     : document.querySelectorAll('.collection-search-card');
+  const numericStickerSearch = albumViewMode === 'all' && isNumericStickerSearch();
   let matches = 0;
   cards.forEach(card => {
-    const textMatch = !searchQuery || card.dataset.search.includes(searchQuery);
+    const textMatch = !searchQuery
+      || (numericStickerSearch
+        ? card.dataset.stickerNumber === String(Number(searchQuery))
+        : card.dataset.search.includes(searchQuery));
     const teamMatch = !activeTeamFilter || card.dataset.team === activeTeamFilter;
     const groupMatch = !activeGroupFilter || card.dataset.group === activeGroupFilter;
     const isMatch = textMatch && teamMatch && groupMatch;
@@ -506,6 +541,16 @@ function applyCollectionSearch() {
   if (counter) {
     const label = albumViewMode === 'teams' ? 'secciones' : 'láminas';
     counter.textContent = `${matches} de ${cards.length} ${label}`;
+  }
+}
+
+function syncCollectionSearch() {
+  const searchInput = document.getElementById('collection-search');
+  searchQuery = searchInput ? searchInput.value.trim().toLowerCase() : '';
+  if (albumViewMode === 'all') {
+    renderAllStickersView();
+  } else {
+    applyCollectionSearch();
   }
 }
 
@@ -587,8 +632,10 @@ function makeStickerCard(sticker, st, onAfterToggle) {
   card.dataset.code = sticker.code;
   card.dataset.team = sticker.collectionCode || '';
   card.dataset.group = sticker.collectionGroup || '';
+  card.dataset.stickerNumber = getTeamStickerNumber(sticker.code);
   card.dataset.search = [
     sticker.code,
+    card.dataset.stickerNumber,
     sticker.name,
     sticker.type || '',
     sticker.position || '',
@@ -1369,9 +1416,14 @@ function init() {
   // Profile
   document.getElementById('profile-name-display').addEventListener('click', openEditName);
 
-  document.getElementById('collection-search').addEventListener('input', e => {
-    searchQuery = e.target.value.trim().toLowerCase();
-    applyCollectionSearch();
+  const collectionSearch = document.getElementById('collection-search');
+  collectionSearch.addEventListener('input', syncCollectionSearch);
+  collectionSearch.addEventListener('search', syncCollectionSearch);
+  collectionSearch.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      syncCollectionSearch();
+    }
   });
   document.getElementById('filter-team').addEventListener('change', e => {
     activeTeamFilter = e.target.value;
