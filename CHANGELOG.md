@@ -2,6 +2,10 @@
 
 Todas las actualizaciones y cambios notables de la aplicación "Álbum Mundial 2026" se documentarán en este archivo.
 
+### v39 - Arquitectura de Nombres de Jugadores y Modos de Vista
+- **Selector de Visualización:** Se añadió un nuevo control en la ventana de "Configuración" que permite al usuario decidir cómo quiere ver las etiquetas de sus láminas en la cuadrícula. Las opciones son: 'Solo Código' (predeterminado), 'Solo Nombre del Jugador' y 'Ambos' (Código + Nombre). El cambio se refleja instantáneamente en la interfaz en tiempo real sin necesidad de recargar la app.
+- **Preparación de Estructura de Datos:** Se actualizó la función `makeStickerCard` en `app.js` para que sea capaz de leer la nueva propiedad opcional `playerName` desde `data.js`. Si una lámina cuenta con este atributo, el modo de vista dual lo inyectará de forma fluida con tipografía comprimida debajo del código. Si el atributo no existe, la app mantendrá automáticamente el formato de solo código, permitiendo una transición progresiva y segura mientras se cargan los nombres oficiales.
+
 ### v38 - Consistencia Visual en Modales de Detalle
 - **Fix de Iconos en Detalle:** Se solucionó un punto ciego en la función `openTeamDetail` de `app.js` que provocaba que los logotipos oficiales de las secciones especiales ("FIFA World Cup" y "Coca-Cola") desaparecieran al abrir el desglose de láminas. El algoritmo ahora discrimina correctamente entre banderas de países (`team.flag`) y logotipos vectoriales de secciones (`team.icon`), garantizando que se renderice el archivo SVG correspondiente.
 - **Formato de Imagen Responsivo:** Se aplicó la propiedad `object-fit: contain` a los logos SVG renderizados dentro de la cabecera modal para evitar que se distorsionen o pierdan su relación de aspecto original al expandirse en pantallas de alta resolución.
