@@ -147,7 +147,6 @@ function openTeamDetail(team) {
 }
 
 function renderStickersGrid(team) { const grid = document.getElementById('modal-stickers-grid'); grid.innerHTML = ''; team.stickers.forEach(s => { grid.appendChild(makeStickerCard(s)); }); updateTeamCount(team.code); }
-
 function updateTeamCount(teamCode) {
     const p = getTeamProgress(teamCode); 
     const countEl = document.getElementById('modal-team-count'); 
@@ -170,12 +169,11 @@ function updateTeamCount(teamCode) {
         }
     }
     
-    // CORRECCIÓN BUG CONFETI: Comprobación sacada fuera del if(cardCount) y añadido el saveState()
     if (p.have === p.total && p.total > 0) {
         if(!state.milestones) state.milestones = {}; 
         if(!state.milestones[`team_${teamCode}`]) { 
             state.milestones[`team_${teamCode}`] = true; 
-            saveState(); // <-- ESTA ERA LA LÍNEA MÁGICA QUE FALTABA
+            saveState(); // <-- LÍNEA AGREGADA: GUARDA EL ESTADO PARA QUE EL CONFETI NO SE REPITA
             shootBigConfetti(); 
         }
     }
