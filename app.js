@@ -4,23 +4,16 @@ let activeSearch = { text: '', team: 'all', group: 'all', sort: 'all' };
 let currentOpenTeam = null;
 let html5QrcodeScanner = null;
 
-function loadQRLibraries(callback) {
-    const promises = [];
-    const loadScript = (src) => new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = src; script.onload = resolve; script.onerror = reject;
-        document.head.appendChild(script);
-    });
-    if (typeof QRCode === 'undefined') promises.push(loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.min.js'));
-    if (typeof jsQR === 'undefined') promises.push(loadScript('https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js'));
-    if (typeof Html5Qrcode === 'undefined') promises.push(loadScript('https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js'));
-
-    if (promises.length > 0) {
-        Promise.all(promises).then(() => { if (callback) callback(); }).catch(() => alert("No se pudo cargar el módulo QR. Verifica tu internet."));
-    } else { if (callback) callback(); }
+function loadQRLibraries(cb) {
+    const p = [];
+    const ls = (src) => new Promise((r, j) => { const s = document.createElement('script'); s.src = src; s.onload = r; s.onerror = j; document.head.appendChild(s); });
+    if (typeof QRCode === 'undefined') p.push(ls('https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.min.js'));
+    if (typeof jsQR === 'undefined') p.push(ls('https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js'));
+    if (typeof Html5Qrcode === 'undefined') p.push(ls('https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js'));
+    if (p.length > 0) { Promise.all(p).then(() => { if(cb) cb(); }).catch(() => alert("Error cargando librerías QR.")); } else { if(cb) cb(); }
 }
 
-function formatCode(name) { if(name === '00') return '00'; return name.replace(/^([A-Z]+)(\d+)$/, '$1 $2'); }
+function formatCode(n) { return n === '00' ? '00' : n.replace(/^([A-Z]+)(\d+)$/, '$1 $2'); }
 
 function init() {
     try {
@@ -126,7 +119,6 @@ function getMissingList() { let missing = []; if (!window.DATA || !window.DATA.T
 
 function renderHome() { renderDashboardCards(); applyCollectionSearch(); }
 function updateHomeProgress() { renderDashboardCards(); }
-
 function renderDashboardCards() {
     const p = getTotalProgress(); const rep = getRepeatedTotal();
     const pctEl = document.getElementById('main-percentage'); if (pctEl) pctEl.innerText = `${p.percentage}%`;
@@ -148,31 +140,23 @@ function renderTeamsGrid(teams) {
 function makeTeamCard(team) {
     const prog = getTeamProgress(team.code); let pct = Math.round((prog.have / prog.total) * 100) || 0; if (pct === 100 && prog.have < prog.total) pct = 99;
     const div = document.createElement('div'); div.className = `team-card ${prog.have === prog.total ? 'completed' : ''}`; div.id = `team-card-${team.code}`; div.onclick = () => openTeamDetail(team);
-    
     let iconHtml = '';
     if (team.flag) { iconHtml = `<img src="${team.flag}" class="team-icon" alt="${team.name}" style="object-fit: cover;">`; } 
     else if (team.icon) { 
         if (team.icon.endsWith('.svg')) { iconHtml = `<img src="${team.icon}" class="team-icon section-logo" alt="${team.name}" style="object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)); padding: 2px;">`; } 
         else { iconHtml = `<div class="team-icon emoji-icon" style="font-size:24px; display:flex; align-items:center; justify-content:center;">${team.icon}</div>`; } 
     } else { iconHtml = `<div class="team-icon placeholder">?</div>`; }
-    
     div.innerHTML = `<div class="team-card-header">${iconHtml}<div class="team-info"><h3>${team.name}</h3><span>${team.group}</span></div></div><div class="team-stats"><span>Progreso</span><span id="card-count-${team.code}">${prog.have}/${prog.total} (${pct}%)</span></div><div class="linear-progress"><div class="linear-bar" id="card-bar-${team.code}" style="width: ${pct}%;"></div></div>`; return div;
 }
 
 function makeStickerCard(sticker) {
     const st = getStickerState(sticker.code); const div = document.createElement('div'); const isSpecial = sticker.type === 'special' || sticker.type === 'shield' || sticker.type === 'group'; div.className = `sticker ${st.have ? 'have animate-pop' : ''} ${isSpecial ? 'special' : ''}`; div.onclick = (e) => toggleSticker(sticker.code, e);
     let badge = st.count > 1 ? `<span class="sticker-badge">+${st.count - 1}</span>` : '';
-    
     let codeText = formatCode(sticker.name);
     let playerText = sticker.playerName || ''; 
     let displayText = codeText; 
-    
-    if (state.displayMode === 'name' && playerText !== '') { 
-        displayText = `<span style="font-size: 0.85em; line-height: 1.1; text-align: center;">${playerText}</span>`; 
-    } else if (state.displayMode === 'both' && playerText !== '') { 
-        displayText = `<span style="font-size: 0.7em; opacity: 0.8; display: block; margin-bottom: 2px;">${codeText}</span><span style="font-size: 0.8em; line-height: 1.1; display: block; text-align: center;">${playerText}</span>`; 
-    }
-    
+    if (state.displayMode === 'name' && playerText !== '') { displayText = `<span style="font-size: 0.85em; line-height: 1.1; text-align: center;">${playerText}</span>`; } 
+    else if (state.displayMode === 'both' && playerText !== '') { displayText = `<span style="font-size: 0.7em; opacity: 0.8; display: block; margin-bottom: 2px;">${codeText}</span><span style="font-size: 0.8em; line-height: 1.1; display: block; text-align: center;">${playerText}</span>`; }
     div.innerHTML = `<span class="sticker-name" style="${isSpecial ? 'color: var(--gold)' : ''}; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; padding: 0 4px;">${displayText}</span>${badge}<button class="btn-minus" onclick="decrementSticker('${sticker.code}', event)">-</button>`; return div;
 }
 
@@ -235,8 +219,7 @@ function exportTradesPdf() {
     let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Cambios Álbum 2026</title><style>body{font-family:sans-serif; padding: 20px;} table{width:100%;border-collapse:collapse; margin-top: 20px;} th,td{border:1px solid #ccc;padding:8px;text-align:left;}</style></head><body><h1>Cambios - ${state.profile.name}</h1><p>Progreso: ${p.have}/${p.total} (${p.percentage}%) | Total repetidas: ${getRepeatedTotal()}</p><table><tr><th style="width:150px">Sección</th><th>Láminas Repetidas</th></tr>`;
     getTradeExportRows().forEach(r => { html += `<tr><td>${r.section}</td><td>${r.text}</td></tr>`; });
     html += `</table></body></html>`;
-    const iframe = document.createElement('iframe'); iframe.style.position = 'fixed'; iframe.style.right = '0'; iframe.style.bottom = '0'; iframe.style.width = '0'; iframe.style.height = '0'; iframe.style.border = '0';
-    document.body.appendChild(iframe);
+    const iframe = document.createElement('iframe'); iframe.style.position = 'fixed'; iframe.style.right = '0'; iframe.style.bottom = '0'; iframe.style.width = '0'; iframe.style.height = '0'; iframe.style.border = '0'; document.body.appendChild(iframe);
     const win = iframe.contentWindow; win.document.open(); win.document.write(html); win.document.close();
     setTimeout(() => { win.focus(); try { win.print(); } catch (err) { alert('Bloqueado por el dispositivo. Usa Exportar Excel.'); } setTimeout(() => document.body.removeChild(iframe), 2000); }, 800);
 }
@@ -286,6 +269,7 @@ function uploadQRImage(event) { const file = event.target.files[0]; if (!file) r
 
 let lastMatchResult = null;
 function clearMatchInput() { document.getElementById('match-input').value = ''; document.getElementById('match-results-container').style.display = 'none'; lastMatchResult = null; }
+
 function compareTradesFromText() {
     const input = document.getElementById('match-input').value.trim(); if (!input) return;
     try {
@@ -299,11 +283,9 @@ function compareTradesFromText() {
         let index = 0;
         window.DATA.TEAMS.forEach(team => {
             team.stickers.forEach(s => {
-                const code = s.code;
-                let isMissing = friendState.legacy ? !(parsed.s && parsed.s[code]) : (bitString[index] === "1");
+                const code = s.code; let isMissing = friendState.legacy ? !(parsed.s && parsed.s[code]) : (bitString[index] === "1");
                 let count = (parsed.s && parsed.s[code]) ? parsed.s[code] : (isMissing ? 0 : 1);
-                friendState.stickers[code] = { have: !isMissing, count: count };
-                index++;
+                friendState.stickers[code] = { have: !isMissing, count: count }; index++;
             });
         });
 
