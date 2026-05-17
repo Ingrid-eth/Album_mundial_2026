@@ -1,4 +1,3 @@
-
 if (!window.DATA) window.DATA = {};
 window.DATA.TOTAL_STICKERS = 994;
 
