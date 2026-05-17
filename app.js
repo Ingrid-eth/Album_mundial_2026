@@ -1,5 +1,5 @@
 const STORAGE_KEY = 'album_mundial_2026_data';
-let state = { profile: { name: 'Mi Álbum', photo: null }, stickers: {}, lastUpdated: Date.now(), milestones: {} };
+let state = { profile: { name: 'Mi Álbum', photo: null }, stickers: {}, displayMode: 'code', lastUpdated: Date.now(), milestones: {} };
 let activeSearch = { text: '', team: 'all', group: 'all', sort: 'all' };
 let currentOpenTeam = null;
 let html5QrcodeScanner = null;
@@ -11,16 +11,13 @@ function loadQRLibraries(callback) {
         script.src = src; script.onload = resolve; script.onerror = reject;
         document.head.appendChild(script);
     });
-
     if (typeof QRCode === 'undefined') promises.push(loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.min.js'));
     if (typeof jsQR === 'undefined') promises.push(loadScript('https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js'));
     if (typeof Html5Qrcode === 'undefined') promises.push(loadScript('https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js'));
 
     if (promises.length > 0) {
         Promise.all(promises).then(() => { if (callback) callback(); }).catch(() => alert("No se pudo cargar el módulo QR. Verifica tu internet."));
-    } else {
-        if (callback) callback();
-    }
+    } else { if (callback) callback(); }
 }
 
 function formatCode(name) { if(name === '00') return '00'; return name.replace(/^([A-Z]+)(\d+)$/, '$1 $2'); }
@@ -35,22 +32,19 @@ function init() {
         const inputProfile = document.getElementById('input-profile-name');
         if(inputProfile) { inputProfile.addEventListener('input', (e) => updateProfileName(e.target.value, false)); }
         
-        // V39: Lógica del selector de vista
         const displaySelect = document.getElementById('setting-display-mode');
         if (displaySelect) {
             displaySelect.value = state.displayMode || 'code';
             displaySelect.addEventListener('change', (e) => {
-                state.displayMode = e.target.value;
-                saveState();
-                applyCollectionSearch(); // Recargar vista principal
-                if(currentOpenTeam) renderStickersGrid(currentOpenTeam); // Recargar modal si está abierto
+                state.displayMode = e.target.value; saveState();
+                applyCollectionSearch();
+                if(currentOpenTeam) renderStickersGrid(currentOpenTeam);
             });
         }
 
         populateTeamFilter(); populateGroupFilter(); bindEvents(); observeHeaderOffset(); renderHome(); updateTradeExportButtons(); checkIOSInstall();
     } catch (error) { console.error("Error en init:", error); bindEvents(); }
 }
-
 
 function checkIOSInstall() {
     const isIos = () => /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
@@ -74,18 +68,9 @@ function updateProfileName(newName, updateInput = true) {
 
 function loadState() {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) { 
-        try { 
-            const parsed = JSON.parse(saved); 
-            state = { ...state, ...parsed }; 
-            if (!state.profile) state.profile = { name: 'Mi Álbum' }; 
-            if (!state.stickers) state.stickers = {}; 
-        } catch(e) {} 
-    }
-    // V39: Iniciar estado de visualización si no existe
+    if (saved) { try { const parsed = JSON.parse(saved); state = { ...state, ...parsed }; if (!state.profile) state.profile = { name: 'Mi Álbum' }; if (!state.stickers) state.stickers = {}; } catch(e) {} }
     if (!state.displayMode) state.displayMode = 'code'; 
 }
-
 
 function saveState() { state.lastUpdated = Date.now(); localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
@@ -160,90 +145,45 @@ function renderTeamsGrid(teams) {
     toRender.forEach(team => { grid.appendChild(makeTeamCard(team)); });
 }
 
-// === app.js (makeTeamCard ACTUALIZADA V37) ===
 function makeTeamCard(team) {
     const prog = getTeamProgress(team.code); let pct = Math.round((prog.have / prog.total) * 100) || 0; if (pct === 100 && prog.have < prog.total) pct = 99;
-    
     const div = document.createElement('div'); div.className = `team-card ${prog.have === prog.total ? 'completed' : ''}`; div.id = `team-card-${team.code}`; div.onclick = () => openTeamDetail(team);
     
-    // NUEVA LÓGICA DE ÍCONO V37: Evita deformaciones y soporta SVG
     let iconHtml = '';
-    if (team.flag) {
-        // Es un país (Nación), usamos la bandera
-        iconHtml = `<img src="${team.flag}" class="team-icon" alt="${team.name}" style="object-fit: cover;">`;
-    } else if (team.icon) {
-        // Es una sección especial
-        if (team.icon.endsWith('.svg')) {
-            // Es un logo SVG (NUEVO V37): Usamos 'contain' para no deformar
-            iconHtml = `<img src="${team.icon}" class="team-icon section-logo" alt="${team.name}" style="object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)); padding: 2px;">`;
-        } else {
-            // Es un Emoji viejo (Legacy)
-            iconHtml = `<div class="team-icon emoji-icon" style="font-size:24px; display:flex; align-items:center; justify-content:center;">${team.icon}</div>`;
-        }
-    } else {
-        iconHtml = `<div class="team-icon placeholder">?</div>`;
-    }
+    if (team.flag) { iconHtml = `<img src="${team.flag}" class="team-icon" alt="${team.name}" style="object-fit: cover;">`; } 
+    else if (team.icon) { 
+        if (team.icon.endsWith('.svg')) { iconHtml = `<img src="${team.icon}" class="team-icon section-logo" alt="${team.name}" style="object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)); padding: 2px;">`; } 
+        else { iconHtml = `<div class="team-icon emoji-icon" style="font-size:24px; display:flex; align-items:center; justify-content:center;">${team.icon}</div>`; } 
+    } else { iconHtml = `<div class="team-icon placeholder">?</div>`; }
     
     div.innerHTML = `<div class="team-card-header">${iconHtml}<div class="team-info"><h3>${team.name}</h3><span>${team.group}</span></div></div><div class="team-stats"><span>Progreso</span><span id="card-count-${team.code}">${prog.have}/${prog.total} (${pct}%)</span></div><div class="linear-progress"><div class="linear-bar" id="card-bar-${team.code}" style="width: ${pct}%;"></div></div>`; return div;
 }
 
-
 function makeStickerCard(sticker) {
-    const st = getStickerState(sticker.code); 
-    const div = document.createElement('div'); 
-    const isSpecial = sticker.type === 'special' || sticker.type === 'shield' || sticker.type === 'group'; 
-    div.className = `sticker ${st.have ? 'have animate-pop' : ''} ${isSpecial ? 'special' : ''}`; 
-    div.onclick = (e) => toggleSticker(sticker.code, e);
-    
+    const st = getStickerState(sticker.code); const div = document.createElement('div'); const isSpecial = sticker.type === 'special' || sticker.type === 'shield' || sticker.type === 'group'; div.className = `sticker ${st.have ? 'have animate-pop' : ''} ${isSpecial ? 'special' : ''}`; div.onclick = (e) => toggleSticker(sticker.code, e);
     let badge = st.count > 1 ? `<span class="sticker-badge">+${st.count - 1}</span>` : '';
     
-    // V39: Lógica para mostrar Código, Nombre o Ambos
     let codeText = formatCode(sticker.name);
-    let playerText = sticker.playerName || ''; // Lee el nombre si existe en data.js
-    let displayText = codeText; // Por defecto
+    let playerText = sticker.playerName || ''; 
+    let displayText = codeText; 
     
-    if (state.displayMode === 'name' && playerText !== '') {
-        displayText = `<span style="font-size: 0.85em; line-height: 1.1; text-align: center;">${playerText}</span>`;
-    } else if (state.displayMode === 'both' && playerText !== '') {
-        displayText = `<span style="font-size: 0.7em; opacity: 0.8; display: block; margin-bottom: 2px;">${codeText}</span>
-                       <span style="font-size: 0.8em; line-height: 1.1; display: block; text-align: center;">${playerText}</span>`;
+    if (state.displayMode === 'name' && playerText !== '') { 
+        displayText = `<span style="font-size: 0.85em; line-height: 1.1; text-align: center;">${playerText}</span>`; 
+    } else if (state.displayMode === 'both' && playerText !== '') { 
+        displayText = `<span style="font-size: 0.7em; opacity: 0.8; display: block; margin-bottom: 2px;">${codeText}</span><span style="font-size: 0.8em; line-height: 1.1; display: block; text-align: center;">${playerText}</span>`; 
     }
     
-    div.innerHTML = `<span class="sticker-name" style="${isSpecial ? 'color: var(--gold)' : ''}; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; padding: 0 4px;">${displayText}</span>${badge}<button class="btn-minus" onclick="decrementSticker('${sticker.code}', event)">-</button>`; 
-    return div;
+    div.innerHTML = `<span class="sticker-name" style="${isSpecial ? 'color: var(--gold)' : ''}; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; padding: 0 4px;">${displayText}</span>${badge}<button class="btn-minus" onclick="decrementSticker('${sticker.code}', event)">-</button>`; return div;
 }
 
-
-// === app.js (openTeamDetail ACTUALIZADA V38) ===
 function openTeamDetail(team) {
-    currentOpenTeam = team; 
-    document.getElementById('modal-team-name').innerText = team.name; 
-    document.getElementById('modal-team-group').innerText = team.group;
-    
-    const iconEl = document.getElementById('modal-team-icon');
-    
-    // CORRECCIÓN V38: Permitir que los logotipos SVG se muestren en el detalle de la sección
-    if (team.flag) {
-        // Si es una selección nacional, muestra la bandera de forma normal
-        iconEl.src = team.flag;
-        iconEl.style.display = 'block';
-        iconEl.style.objectFit = 'cover';
-        iconEl.style.padding = '0';
-    } else if (team.icon && team.icon.endsWith('.svg')) {
-        // Si es una sección especial con logo SVG (NUEVO V38), inyecta el logo sin deformarlo
-        iconEl.src = team.icon;
-        iconEl.style.display = 'block';
-        iconEl.style.objectFit = 'contain';
-        iconEl.style.padding = '2px'; // Pequeña separación estética
-    } else {
-        // Si no cuenta con ningún elemento visual, se oculta el contenedor de la imagen
-        iconEl.style.display = 'none';
-    }
-    
-    renderStickersGrid(team); 
-    showModal('modal-team');
+    currentOpenTeam = team; document.getElementById('modal-team-name').innerText = team.name; document.getElementById('modal-team-group').innerText = team.group;
+    const iconEl = document.getElementById('modal-team-icon'); 
+    if (team.flag) { iconEl.src = team.flag; iconEl.style.display = 'block'; iconEl.style.objectFit = 'cover'; iconEl.style.padding = '0'; } 
+    else if (team.icon && team.icon.endsWith('.svg')) { iconEl.src = team.icon; iconEl.style.display = 'block'; iconEl.style.objectFit = 'contain'; iconEl.style.padding = '2px'; } 
+    else { iconEl.style.display = 'none'; }
+    renderStickersGrid(team); showModal('modal-team');
 }
-
 
 function renderStickersGrid(team) { const grid = document.getElementById('modal-stickers-grid'); grid.innerHTML = ''; team.stickers.forEach(s => { grid.appendChild(makeStickerCard(s)); }); updateTeamCount(team.code); }
 
@@ -260,7 +200,7 @@ function applyCollectionSearch() {
     if (!window.DATA || !window.DATA.TEAMS) return;
     let filtered = window.DATA.TEAMS.filter(t => {
         let matchText = true;
-        if (activeSearch.text) { let txt = activeSearch.text.toLowerCase(); let hasSticker = t.stickers.some(s => s.name.toLowerCase().includes(txt)); matchText = t.name.toLowerCase().includes(txt) || t.group.toLowerCase().includes(txt) || hasSticker; }
+        if (activeSearch.text) { let txt = activeSearch.text.toLowerCase(); let hasSticker = t.stickers.some(s => s.name.toLowerCase().includes(txt) || (s.playerName && s.playerName.toLowerCase().includes(txt))); matchText = t.name.toLowerCase().includes(txt) || t.group.toLowerCase().includes(txt) || hasSticker; }
         return matchText && (activeSearch.team === 'all' || t.code === activeSearch.team) && (activeSearch.group === 'all' || t.group === activeSearch.group);
     });
     if (activeSearch.sort === 'most') { filtered.sort((a,b) => (getTeamProgress(b.code).have / b.stickers.length) - (getTeamProgress(a.code).have / a.stickers.length)); }
@@ -300,27 +240,15 @@ function exportTradesPdf() {
     const win = iframe.contentWindow; win.document.open(); win.document.write(html); win.document.close();
     setTimeout(() => { win.focus(); try { win.print(); } catch (err) { alert('Bloqueado por el dispositivo. Usa Exportar Excel.'); } setTimeout(() => document.body.removeChild(iframe), 2000); }, 800);
 }
-// ==== LÓGICA QR Y MATCH V36 (PERFECCIÓN MATEMÁTICA Y BITMASK) ====
-
 function getMinifiedTradeData() {
     const minified = { n: state.profile.name, s: {} };
-    // 1. Exportar Repetidas
-    for (const [code, sticker] of Object.entries(state.stickers)) {
-        if (sticker.have && sticker.count > 1) { minified.s[code] = sticker.count; }
-    }
-    // 2. Comprimir faltantes en un mapa de bits Hexadecimal ultra-ligero
+    for (const [code, sticker] of Object.entries(state.stickers)) { if (sticker.have && sticker.count > 1) { minified.s[code] = sticker.count; } }
     let bitString = "";
     if (window.DATA && window.DATA.TEAMS) {
-        window.DATA.TEAMS.forEach(team => {
-            team.stickers.forEach(s => {
-                bitString += getStickerState(s.code).have ? "0" : "1";
-            });
-        });
+        window.DATA.TEAMS.forEach(team => { team.stickers.forEach(s => { bitString += getStickerState(s.code).have ? "0" : "1"; }); });
         while(bitString.length % 4 !== 0) bitString += "0";
         let hexString = "";
-        for(let i=0; i<bitString.length; i+=4) {
-            hexString += parseInt(bitString.substring(i, i+4), 2).toString(16);
-        }
+        for(let i=0; i<bitString.length; i+=4) { hexString += parseInt(bitString.substring(i, i+4), 2).toString(16); }
         minified.m = hexString;
     }
     return JSON.stringify(minified);
@@ -362,15 +290,9 @@ function compareTradesFromText() {
     const input = document.getElementById('match-input').value.trim(); if (!input) return;
     try {
         const parsed = JSON.parse(input);
-        
-        // Reconstrucción del álbum del amigo con precisión absoluta
         let friendState = { profile: { name: parsed.n || 'Tu contacto' }, stickers: {}, legacy: !parsed.m };
         let bitString = "";
-        if (parsed.m) {
-            for(let i=0; i<parsed.m.length; i++) {
-                bitString += parseInt(parsed.m[i], 16).toString(2).padStart(4, '0');
-            }
-        }
+        if (parsed.m) { for(let i=0; i<parsed.m.length; i++) { bitString += parseInt(parsed.m[i], 16).toString(2).padStart(4, '0'); } }
         
         if (!window.DATA || !window.DATA.TEAMS) return;
         
@@ -378,7 +300,6 @@ function compareTradesFromText() {
         window.DATA.TEAMS.forEach(team => {
             team.stickers.forEach(s => {
                 const code = s.code;
-                // Si es versión vieja, asume falsamente que le faltan las no repetidas. Si es nueva, decodifica el Bitmask.
                 let isMissing = friendState.legacy ? !(parsed.s && parsed.s[code]) : (bitString[index] === "1");
                 let count = (parsed.s && parsed.s[code]) ? parsed.s[code] : (isMissing ? 0 : 1);
                 friendState.stickers[code] = { have: !isMissing, count: count };
@@ -389,24 +310,13 @@ function compareTradesFromText() {
         let iReceive = {}; let iGive = {};    
         window.DATA.TEAMS.forEach(team => {
             team.stickers.forEach(s => {
-                const code = s.code; 
-                const mySticker = getStickerState(code); 
-                const friendSticker = friendState.stickers[code] || { have: false, count: 0 }; 
-                const myName = formatCode(s.name);
-                
-                // Yo recibo: Él tiene >1 y a mí me falta
-                if (!mySticker.have && friendSticker.have && friendSticker.count > 1) { 
-                    if(!iReceive[team.name]) iReceive[team.name] = []; iReceive[team.name].push(myName); 
-                }
-                // Yo doy: Yo tengo >1 y a él le falta (ahora es 100% real)
-                if (!friendSticker.have && mySticker.have && mySticker.count > 1) { 
-                    if(!iGive[team.name]) iGive[team.name] = []; iGive[team.name].push(myName); 
-                }
+                const code = s.code; const mySticker = getStickerState(code); const friendSticker = friendState.stickers[code] || { have: false, count: 0 }; const myName = formatCode(s.name);
+                if (!mySticker.have && friendSticker.have && friendSticker.count > 1) { if(!iReceive[team.name]) iReceive[team.name] = []; iReceive[team.name].push(myName); }
+                if (!friendSticker.have && mySticker.have && mySticker.count > 1) { if(!iGive[team.name]) iGive[team.name] = []; iGive[team.name].push(myName); }
             }); 
         });
         
-        lastMatchResult = { iReceive, iGive, friendName: friendState.profile?.name || 'Tu contacto', legacy: friendState.legacy }; 
-        renderMatchResults();
+        lastMatchResult = { iReceive, iGive, friendName: friendState.profile?.name || 'Tu contacto', legacy: friendState.legacy }; renderMatchResults();
     } catch(e) { alert('Los datos leídos no son válidos.'); }
 }
 
@@ -417,20 +327,12 @@ function renderMatchResults() {
     let optimal = Math.min(totalRec, totalGive); let bottleneck = totalRec < totalGive ? `(Menos repetidas: ${lastMatchResult.friendName})` : totalGive < totalRec ? `(Menos repetidas: Tú)` : `(Ambos ofrecen igual)`;
     
     let html = `<p style="text-align:center; color:var(--text-secondary); margin-bottom:1rem;">Comparación con: <strong style="color:var(--text-primary); font-size:1.1rem;">${lastMatchResult.friendName}</strong></p>`;
-    
-    if (lastMatchResult.legacy) {
-        html += `<div style="background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; padding: 0.8rem; border-radius: 8px; margin-bottom: 1rem; color: #ef4444; font-size: 0.85rem; text-align: center;">⚠️ Tu contacto generó este código con una versión antigua. Las láminas que le puedes entregar no serán exactas. Pídele que actualice su app.</div>`;
-    }
-
-    html += `<div style="background: rgba(59,130,246,0.1); border: 1px dashed var(--blue-accent); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center;">
-        <p style="margin-bottom: 0.5rem; color: var(--text-primary);"><strong>📊 Resumen del Match</strong></p><p style="font-size: 0.9rem; margin-bottom: 0.2rem; color: var(--text-secondary);">Recibes: <strong style="color:var(--green-complete)">${totalRec}</strong> láminas</p><p style="font-size: 0.9rem; margin-bottom: 0.8rem; color: var(--text-secondary);">Entregas: <strong style="color:var(--gold)">${totalGive}</strong> láminas</p><div style="background: var(--blue-accent); color: white; padding: 0.4rem 0.8rem; border-radius: 6px; display: inline-block;"><strong>Máx. cambios: ${optimal}</strong> <span style="font-size: 0.8rem; opacity: 0.9;">${bottleneck}</span></div>
-    </div><div class="match-columns"><div class="match-col"><h3>⬇️ Me puede dar</h3>`;
-    
+    if (lastMatchResult.legacy) { html += `<div style="background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; padding: 0.8rem; border-radius: 8px; margin-bottom: 1rem; color: #ef4444; font-size: 0.85rem; text-align: center;">⚠️ Tu contacto generó este código con una versión antigua. Pídele que actualice su app.</div>`; }
+    html += `<div style="background: rgba(59,130,246,0.1); border: 1px dashed var(--blue-accent); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center;"><p style="margin-bottom: 0.5rem; color: var(--text-primary);"><strong>📊 Resumen del Match</strong></p><p style="font-size: 0.9rem; margin-bottom: 0.2rem; color: var(--text-secondary);">Recibes: <strong style="color:var(--green-complete)">${totalRec}</strong> láminas</p><p style="font-size: 0.9rem; margin-bottom: 0.8rem; color: var(--text-secondary);">Entregas: <strong style="color:var(--gold)">${totalGive}</strong> láminas</p><div style="background: var(--blue-accent); color: white; padding: 0.4rem 0.8rem; border-radius: 6px; display: inline-block;"><strong>Máx. cambios: ${optimal}</strong> <span style="font-size: 0.8rem; opacity: 0.9;">${bottleneck}</span></div></div><div class="match-columns"><div class="match-col"><h3>⬇️ Me puede dar</h3>`;
     let recCount = 0; for(let team in lastMatchResult.iReceive) { html += `<strong>${team}</strong><span>${lastMatchResult.iReceive[team].join(', ')}</span>`; recCount++; }
     if(recCount === 0) html += '<p class="text-muted">Ninguna :(</p>'; html += '</div><div class="match-col"><h3>⬆️ Le puedo dar</h3>';
     let giveCount = 0; for(let team in lastMatchResult.iGive) { html += `<strong>${team}</strong><span>${lastMatchResult.iGive[team].join(', ')}</span>`; giveCount++; }
     if(giveCount === 0) html += '<p class="text-muted">Ninguna :(</p>'; html += '</div></div>';
-    
     document.getElementById('match-results').innerHTML = html; document.getElementById('match-results-container').style.display = 'block';
 }
 
@@ -445,7 +347,6 @@ function shareMatchWhatsApp() {
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
 }
 
-// UTILIDADES Y EVENTOS
 function downloadBlob(b, f) { const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = f; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(u); }
 function exportData() { downloadBlob(new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' }), 'album_mundial_2026.json'); }
 function importData(e) { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = (ev) => { try { const d = JSON.parse(ev.target.result); if (d.stickers) { state = d; saveState(); init(); closeModal('modal-settings'); alert('Álbum restaurado.'); } } catch (err) { alert('Archivo JSON inválido.'); } }; r.readAsText(f); }
