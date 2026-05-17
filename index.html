@@ -45,6 +45,44 @@
                 <div class="sort-bar">
                     <span class="results-counter" id="results-counter">0 resultados</span>
                     <select id="sort-select">
+                        <option value="all">Todos (Orden base)</option>
+                        <option value="most">Más completos</option>
+                        <option value="least">Menos completos</option>
+                        <option value="az">Equipos A-Z</option>
+                    </select>
+                </div>
+            </div>
+        </header>
+
+        <main id="main-content">
+            <section id="tab-home" class="tab-pane active">
+                <div class="dashboard">
+                    <div class="main-card">
+                        <div class="progress-ring-container">
+                            <div class="progress-ring" id="main-progress-ring"></div>
+                            <div class="progress-ring-text">
+                                <span class="percentage" id="main-percentage">0%</span>
+                                <span class="label">Completado</span>
+                            </div>
+                        </div>
+                        <div class="progress-info">
+                            <span class="kicker">Tu colección</span>
+                            <h2>Progreso del álbum</h2>
+                            <p id="main-progress-text">Tienes 0 de 994 láminas únicas.</p>
+                            <div class="linear-progress">
+                                <div class="linear-bar" id="main-linear-bar" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metric-cards">
+                        <div class="metric-card"><h3>Avance</h3><p id="metric-advance">0%</p></div>
+                        <div class="metric-card"><h3>Únicas</h3><p id="metric-unique">0 / 994</p></div>
+                        <div class="metric-card"><h3>Cambio</h3><p id="metric-repeated">0 rep.</p></div>
+                    </div>
+                </div>
+                <div class="teams-grid" id="teams-grid"></div>
+            </section>
+
             <section id="tab-trades" class="tab-pane">
                 <div class="trades-header">
                     <h2>Gestión de Cambios</h2>
@@ -102,6 +140,7 @@
             <button class="nav-btn" data-target="tab-trades">Cambios</button>
             <button class="nav-btn" data-target="tab-match">Match</button>
         </nav>
+
         <div id="modal-team" class="modal">
             <div class="modal-content team-modal">
                 <div class="modal-header">
@@ -153,6 +192,7 @@
                 </div>
             </div>
         </div>
+
         <div id="modal-share" class="modal">
             <div class="modal-content share-modal">
                 <div class="modal-header">
@@ -197,7 +237,7 @@
         <div id="ios-install-prompt" class="ios-prompt" style="display: none;">
             <button class="close-ios-prompt" onclick="document.getElementById('ios-install-prompt').style.display='none'">✕</button>
             <h3>Instalar App</h3>
-            <p>Para usar el álbum sin internet, toca Compartir <svg style="width:16px; height:16px; vertical-align:middle; fill:currentColor;" viewBox="0 0 50 50"><path d="M25 2v18M25 2l-7 7M25 2l7 7M15 15H9v33h32V15h-6" stroke="currentColor" stroke-width="4" fill="none"/></svg> y selecciona <strong>Añadir a la pantalla de inicio</strong>.</p>
+            <p>Para usar el álbum sin internet, toca Compartir y selecciona <strong>Añadir a la pantalla de inicio</strong>.</p>
         </div>
     </div>
 
