@@ -2,6 +2,12 @@
 
 Todas las actualizaciones y cambios notables de la aplicación "Álbum Mundial 2026" se documentarán en este archivo.
 
+### v43 - Desacoplamiento de Base de Datos y Fetch Dinámico
+- **Lectura Asíncrona (Fetch API):** Se reescribió `data.js` para desacoplar completamente la base de datos estática del código base. Ahora la aplicación lee e interpreta los datos directamente desde el archivo subido `album_names_2026_v1.csv` mediante una petición Fetch en tiempo real.
+- **Motor de Parseo Integrado:** Se programó un lector de CSV liviano dentro de `data.js` capaz de asociar prefijos de código, agrupar las secciones especiales, mantener retrocompatibilidad (fix: `EGV`), inyectar íconos nativos y clasificar la metadata de los 994 cromos al vuelo.
+- **Asincronía de Interfaz (`app.js`):** La función de inicialización `init()` fue reestructurada a `async/await` para poner en espera el pintado del DOM y la rehidratación del estado (localStorage) hasta que la promesa de datos del CSV se resuelva.
+- **Caché Offline (PWA):** Se inyectó la ruta de `album_names_2026_v1.csv` dentro de la matriz estática del Service Worker (`sw.js`). Esto asegura que la base de datos dinámica sea clonada y quede disponible incluso cuando el dispositivo pierda conexión a internet.
+
 ### v42 - Data Recovery y Precisión Absoluta
 - **Corrección Crítica de Metadatos:** Se reescribió la base de datos `data.js` extrayendo la información en crudo directamente desde el archivo maestro oficial proveído por el usuario (`panini_fifa_world_cup_2026_standard_edition_lista`), recuperando las traducciones locales, alineaciones finales de jugadores, e integrando la estructura exacta de 994 cromos.
 - **Resolución "EGV":** Se incluyó un soporte de retro-compatibilidad nativa en el que el código `EGV` asume el rol del grupo y nombre correspondiente a Egipto (`EGY`) para evitar pérdida de progreso asimétrico en respaldos pasados de los usuarios.

@@ -15,8 +15,10 @@ function loadQRLibraries(cb) {
 
 function formatCode(n) { return n === '00' ? '00' : n.replace(/^([A-Z]+)(\d+)$/, '$1 $2'); }
 
-function init() {
+async function init() {
     try {
+        if (window.LOAD_DATA) await window.LOAD_DATA();
+        
         loadTheme(); loadState(); migrateStickerCodes(); updateProfileName(state.profile?.name);
         const title = document.getElementById('album-title'); if(title) { title.addEventListener('blur', () => updateProfileName(title.innerText)); title.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); title.blur(); } }); }
         const inputProfile = document.getElementById('input-profile-name'); if(inputProfile) { inputProfile.addEventListener('input', (e) => updateProfileName(e.target.value, false)); }

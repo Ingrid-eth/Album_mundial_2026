@@ -1,31 +1,99 @@
+// data.js v43 - Motor de Lectura Dinámica CSV
 if (!window.DATA) window.DATA = {};
 window.DATA.TOTAL_STICKERS = 994;
 
 const emojis = {'ARG':'🇦🇷','AUS':'🇦🇺','AUT':'🇦🇹','ALG':'🇩🇿','BEL':'🇧🇪','BIH':'🇧🇦','BRA':'🇧🇷','CAN':'🇨🇦','CPV':'🇨🇻','COL':'🇨🇴','COD':'🇨🇩','CRO':'🇭🇷','CUW':'🇨🇼','CZE':'🇨🇿','ECU':'🇪🇨','EGY':'🇪🇬','EGV':'🇪🇬','ENG':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','FRA':'🇫🇷','GER':'🇩🇪','GHA':'🇬🇭','HAI':'🇭🇹','IRN':'🇮🇷','IRQ':'🇮🇶','CIV':'🇨🇮','JPN':'🇯🇵','JOR':'🇯🇴','MEX':'🇲🇽','MAR':'🇲🇦','NED':'🇳🇱','NZL':'🇳🇿','NOR':'🇳🇴','PAN':'🇵🇦','PAR':'🇵🇾','POR':'🇵🇹','QAT':'🇶🇦','KSA':'🇸🇦','SCO':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','SEN':'🇸🇳','RSA':'🇿🇦','KOR':'🇰🇷','ESP':'🇪🇸','SWE':'🇸🇪','SUI':'🇨🇭','TUN':'🇹🇳','TUR':'🇹🇷','USA':'🇺🇸','URU':'🇺🇾','UZB':'🇺🇿'};
 
-const r = [{"t": "We Are Panini", "p": "00", "s": "00:Panini Logo"}, {"t": "FIFA World Cup 2026", "p": "FWC", "s": "FWC1:Official Emblem 1|FWC2:Official Emblem 2|FWC3:Official Mascots|FWC4:Official Slogan|FWC5:Official Ball"}, {"t": "Host Countries and Cities", "p": "FWC", "s": "FWC6:Canada|FWC7:Mexico|FWC8:USA"}, {"t": "Mexico", "p": "MEX", "s": "Emblem|Luis Malagón|Johan Vasquez|Jorge Sánchez|Cesar Montes|Gerardo Arteaga|Jesús Gallardo|Edson Álvarez|Luis Chávez|Erick Sánchez|Luis Romo|Orbelín Pineda|Team Photo|Carlos Rodríguez|Uriel Antuna|Hirving Lozano|Santiago Giménez|Henry Martín|Raúl Jiménez|Julián Quiñones"}, {"t": "South Africa", "p": "RSA", "s": "Emblem|Ronwen Williams|Sipho Chaine|Aubrey Modiba|Samukele Kabini|Mbekezeli Mbokazi|Khulumani Ndamane|Siyabonga Ngezana|Khuliso Mudau|Nkosinathi Sibisi|Teboho Mokoena|Thalente Mbatha|Team Photo|Bathusi Aubaas|Yaya Sithole|Sipho Mbule|Lyle Foster|Iqraam Rayners|Mohau Nkota|Oswin Appollis"}, {"t": "South Korea", "p": "KOR", "s": "Emblem|Hyeon-woo Jo|Seung-Gyu Kim|Min-jae Kim|Yu-min Cho|Young-woo Seol|Han-beom Lee|Tae-seok Lee|Myung-jae Lee|Jae-sung Lee|In-beom Hwang|Kang-in Lee|Team Photo|Seung-ho Paik|Jens Castrop|Dongg-yeong Lee|Gue-sung Cho|Heung-min Son|Hee-chan Hwang|Hyeon-Gyu Oh"}, {"t": "Czechia", "p": "CZE", "s": "Emblem|Matej Kovar|Jindrich Stanek|Ladislav Krejci|Vladimir Coufal|Jaroslav Zeleny|Tomas Holes|David Zima|Michal Sadilek|Lukas Provod|Lukas Cerv|Tomas Soucek|Team Photo|Pavel Sulc|Matej Vydra|Vasil Kusej|Tomas Chory|Vaclav Cerny|Adam Hlozek|Patrik Schick"}, {"t": "Canada", "p": "CAN", "s": "Emblem|Dayne St.Clair|Alphonso Davies|Alistair Johnston|Samuel Adekugbe|Richie Laryea|Derek Cornelius|Moïse Bombito|Kamal Miller|Stephen Eustáquio|Ismaël Koné|Jonathan Osorio|Team Photo|Jacob Shaffelburg|Mathieu Choinière|Niko Sigur|Tajon Buchanan|Liam Millar|Cyle Larin|Jonathan David"}, {"t": "Bosnia and Herzegovina", "p": "BIH", "s": "Emblem|Nikola Vasilj|Amer Dedic|Sead Kolasinac|Tarik Muharemovic|Nihad Mujakic|Nikola Katic|Amir Hadziahmetovic|Benjamin Tahirovic|Armin Gigovic|Ivan Sunjic|Ivan Basic|Team Photo|Dzenis Burnic|Esmir Bajraktarevic|Amar Memic|Ermedin Demirovic|Edin Dzeko|Samed Bazdar|Haris Tabakovic"}, {"t": "Qatar", "p": "QAT", "s": "Emblem|Meshaal Barsham|Sultan Albrake|Lucas Mendes|Homam Ahmed|Boualem Khoukhi|Pedro Miguel|Tarek Salman|Mohamed Al-Mannai|Karim Boudiaf|Assim Madibo|Ahmed Fatehi|Team Photo|Mohammed Waad|Abdulaziz Hatem|Hassan Al-Haydos|Edmilson Junior|Akram Hassan Afif|Ahmed Al Ganehi|Almoez Ali"}, {"t": "Switzerland", "p": "SUI", "s": "Emblem|Gregor Kobel|Yvon Mvogo|Manuel Akanji|Ricardo Rodriguez|Nico Elvedi|Aurèle Amenda|Silvan Widmer|Granit Xhaka|Denis Zakaria|Remo Freuler|Fabian Rieder|Team Photo|Ardon Jashari|Johan Manzambi|Michel Aebischer|Breel Embolo|Ruben Vargas|Dan Ndoye|Zeki Amdouni"}, {"t": "Brazil", "p": "BRA", "s": "Emblem|Alisson|Ederson|Danilo|Marquinhos|Éder Militão|Gabriel Magalhães|Renan Lodi|Casemiro|Bruno Guimarães|Lucas Paquetá|Douglas Luiz|Team Photo|Joelinton|Vinícius Júnior|Rodrygo|Raphinha|Richarlison|Gabriel Jesus|Gabriel Martinelli"}, {"t": "Morocco", "p": "MAR", "s": "Emblem|Yassine Bounou|Munir Mohamedi|Achraf Hakimi|Romain Saïss|Nayef Aguerd|Noussair Mazraoui|Yahia Attiyat Allah|Sofyan Amrabat|Azzedine Ounahi|Selim Amallah|Bilal El Khannouss|Team Photo|Hakim Ziyech|Youssef En-Nesyri|Sofiane Boufal|Abdessamad Ezzalzouli|Amine Adli|Ayoub El Kaabi|Tarik Tissoudali"}, {"t": "Haiti", "p": "HAI", "s": "Emblem|Johny Placide|Alexandre Pierre|Ricardo Adé|Garven Metusala|Carlens Arcus|Alex Christian|Jeppe Simonsen|Carl Fred Sainté|Bryan Alceus|Danley Jean Jacques|Steeven Saba|Team Photo|Derrick Etienne Jr.|Duckens Nazon|Frantzdy Pierrot|Carnejy Antoine|Mondy Prunier|Deedson Vixamar|Jayro Jean"}, {"t": "Scotland", "p": "SCO", "s": "Emblem|Angus Gunn|Craig Gordon|Jack Hendry|Ryan Porteous|Kieran Tierney|Andy Robertson|Aaron Hickey|Callum McGregor|John McGinn|Scott McTominay|Billy Gilmour|Team Photo|Ryan Christie|Stuart Armstrong|Che Adams|Lyndon Dykes|John McGinn|Lawrence Shankland|Ryan Fraser"}, {"t": "USA", "p": "USA", "s": "Emblem|Matt Turner|Zack Steffen|Sergiño Dest|Antonee Robinson|Tim Ream|Chris Richards|Joe Scally|Tyler Adams|Weston McKennie|Yunus Musah|Gio Reyna|Team Photo|Christian Pulisic|Timothy Weah|Brenden Aaronson|Folarin Balogun|Ricardo Pepi|Josh Sargent|Jesús Ferreira"}, {"t": "Paraguay", "p": "PAR", "s": "Emblem|Roberto Fernandez|Orlando Gill|Gustavo Gomez|Fabián Balbuena|Juan José Cáceres|Omar Alderete|Junior Alonso|Mathías Villasanti|Diego Gomez|Damián Bobadilla|Andres Cubas|Team Photo|Matias Galarza Fonda|Julio Enciso|Alejandro Romero Gamarra|Miguel Almirón|Ramon Sosa|Angel Romero|Antonio Sanabria"}, {"t": "Australia", "p": "AUS", "s": "Emblem|Mathew Ryan|Joe Gauci|Harry Souttar|Kye Rowles|Cameron Burgess|Aziz Behich|Jackson Irvine|Keanu Baccus|Connor Metcalfe|Riley McGree|Martin Boyle|Team Photo|Craig Goodwin|Mitchell Duke|Kusini Yengi|Samuel Silvera|Marco Tilio|John Iredale|Bruno Fornaroli"}, {"t": "Türkiye", "p": "TUR", "s": "Emblem|Mert Günok|Uğurcan Çakır|Merih Demiral|Çağlar Söyüncü|Ozan Kabak|Ferdi Kadıoğlu|Zeki Çelik|Hakan Çalhanoğlu|Salih Özcan|Orkun Kökçü|İsmail Yüksek|Team Photo|Cengiz Ünder|Kerem Aktürkoğlu|İrfan Can Kahveci|Barış Alper Yılmaz|Enes Ünal|Cenk Tosun|Arda Güler"}, {"t": "Germany", "p": "GER", "s": "Emblem|Marc-André ter Stegen|Kevin Trapp|Antonio Rüdiger|Niklas Süle|Nico Schlotterbeck|Jonathan Tah|Robin Gosens|Joshua Kimmich|İlkay Gündoğan|Leon Goretzka|Emre Can|Team Photo|Florian Wirtz|Jamal Musiala|Leroy Sané|Serge Gnabry|Kai Havertz|Niclas Füllkrug|Timo Werner"}, {"t": "Curaçao", "p": "CUW", "s": "Emblem|Eloy Room|Trevor Doornbusch|Cuco Martina|Juriën Gaari|Roshon van Eijma|Sherel Floris|Nathangelo Markelo|Vurnon Anita|Leandro Bacuna|Kevin Felida|Juninho Bacuna|Team Photo|Kenji Gorré|Jearl Margaritha|Brandley Kuwas|Rangelo Janga|Jürgen Locadia|Godfried Roemeratoe|Elson Hooi"}, {"t": "Ivory Coast", "p": "CIV", "s": "Emblem|Yahia Fofana|Badra Ali Sangaré|Evan Ndicka|Odilon Kossounou|Willy Boly|Ghislain Konan|Serge Aurier|Seko Fofana|Franck Kessié|Ibrahim Sangaré|Jean Michaël Seri|Team Photo|Jérémie Boga|Simon Adingra|Nicolas Pépé|Sébastien Haller|Karim Konaté|Jonathan Bamba|Christian Kouamé"}, {"t": "Ecuador", "p": "ECU", "s": "Emblem|Alexander Domínguez|Hernán Galíndez|Piero Hincapié|Félix Torres|William Pacho|Pervis Estupiñán|Angelo Preciado|Moisés Caicedo|Carlos Gruezo|José Cifuentes|Kendry Páez|Team Photo|Alan Franco|Enner Valencia|Kevin Rodríguez|Jordy Caicedo|Julio Ortiz|Leonardo Campana|Gonzalo Plata"}, {"t": "Netherlands", "p": "NED", "s": "Emblem|Bart Verbruggen|Mark Flekken|Denzel Dumfries|Virgil van Dijk|Nathan Aké|Matthijs de Ligt|Lutsharel Geertruida|Frenkie de Jong|Marten de Roon|Teun Koopmeiners|Tijjani Reijnders|Team Photo|Joey Veerman|Xavi Simons|Cody Gakpo|Memphis Depay|Steven Bergwijn|Wout Weghorst|Donyell Malen"}, {"t": "Japan", "p": "JPN", "s": "Emblem|Zion Suzuki|Daiya Maekawa|Takehiro Tomiyasu|Ko Itakura|Hiroki Ito|Yukinari Sugawara|Wataru Endo|Hidemasa Morita|Ao Tanaka|Takefusa Kubo|Junya Ito|Team Photo|Kaoru Mitoma|Daichi Kamada|Ritsu Doan|Takumi Minamino|Ayase Ueda|Takuma Asano|Daizen Maeda"}, {"t": "Sweden", "p": "SWE", "s": "Emblem|Robin Olsen|Kristoffer Nordfeldt|Victor Lindelöf|Isak Hien|Carl Starfelt|Ludwig Augustinsson|Linus Wahlqvist|Mattias Svanberg|Jens Cajuste|Albin Ekdal|Samuel Gustafson|Team Photo|Emil Forsberg|Dejan Kulusevski|Alexander Isak|Viktor Gyökeres|Jesper Karlsson|Anthony Elanga|Robin Quaison"}, {"t": "Tunisia", "p": "TUN", "s": "Emblem|Aymen Dahmen|Bechir Ben Saïd|Montassar Talbi|Yassine Meriah|Ali Abdi|Wajdi Kechrida|Ali Maâloul|Ellyes Skhiri|Aïssa Laïdouni|Hannibal Mejbri|Mohamed Ali Ben Romdhane|Team Photo|Youssef Msakni|Naïm Sliti|Elias Achouri|Anis Ben Slimane|Seifeddine Jaziri|Issam Jebali|Hamza Rafia"}, {"t": "Belgium", "p": "BEL", "s": "Emblem|Koen Casteels|Matz Sels|Timothy Castagne|Jan Vertonghen|Wout Faes|Arthur Theate|Zeno Debast|Amadou Onana|Orel Mangala|Youri Tielemans|Kevin De Bruyne|Team Photo|Yannick Carrasco|Leandro Trossard|Jeremy Doku|Romelu Lukaku|Loïs Openda|Dodi Lukebakio|Johan Bakayoko"}, {"t": "Egypt", "p": "EGV", "s": "Emblem|Mohamed El Shenawy|Mohamed Abou Gabal|Ahmed Hegazi|Mohamed Abdelmonem|Ali Gabr|Ahmed Fatouh|Mohamed Hany|Mohamed Elneny|Marwan Attia|Emam Ashour|Hamdi Fathi|Team Photo|Mahmoud Trezeguet|Zizo|Mohamed Salah|Mostafa Mohamed|Omar Marmoush|Kahraba|Ahmed Hassan Kouka"}, {"t": "Iran", "p": "IRN", "s": "Emblem|Alireza Beiranvand|Hossein Hosseini|Shojae Khalilzadeh|Hossein Kanaanizadegan|Sadegh Moharrami|Ramin Rezaeian|Milad Mohammadi|Ehsan Hajsafi|Saeid Ezatolahi|Saman Ghoddos|Omid Ebrahimi|Team Photo|Mehdi Torabi|Alireza Jahanbakhsh|Mehdi Taremi|Sardar Azmoun|Karim Ansarifard|Mohammad Mohebi|Ali Gholizadeh"}, {"t": "New Zealand", "p": "NZL", "s": "Emblem|Max Crocombe|Oliver Sail|Michael Boxall|Nando Pijnaker|Tyler Bindon|Liberato Cacace|Tim Payne|Joe Bell|Marko Stamenic|Matthew Garbett|Sarpreet Singh|Team Photo|Callum McCowatt|Elijah Just|Chris Wood|Max Mata|Ben Waine|Kosta Barbarouses|Alex Rufer"}, {"t": "Spain", "p": "ESP", "s": "Emblem|Unai Simón|Kepa Arrizabalaga|Dani Carvajal|Aymeric Laporte|Robin Le Normand|Pau Torres|Alejandro Balde|José Gayà|Rodri|Gavi|Pedri|Team Photo|Mikel Merino|Fabián Ruiz|Álvaro Morata|Ferran Torres|Dani Olmo|Marco Asensio|Lamine Yamal"}, {"t": "Cape Verde", "p": "CPV", "s": "Emblem|Vozinha|Marcio da Rosa|Roberto Lopes|Logan Costa|Steven Fortès|João Paulo|Willy Semedo|Kevin Pina|Deroy Duarte|Jamiro Monteiro|Patrick Andrade|Team Photo|Ryan Mendes|Garry Rodrigues|Bebé|Jovane Cabral|Gilson Tavares|Bryan Teixeira|Benchimol"}, {"t": "Saudi Arabia", "p": "KSA", "s": "Emblem|Mohammed Al-Owais|Nawaf Al-Aqidi|Ali Al-Bulaihi|Hassan Tambakti|Saud Abdulhamid|Yasser Al-Shahrani|Sultan Al-Ghannam|Abdulellah Al-Malki|Mohamed Kanno|Salman Al-Faraj|Abdullah Al-Khaibari|Team Photo|Salem Al-Dawsari|Firas Al-Buraikan|Saleh Al-Shehri|Abdulrahman Ghareeb|Sami Al-Najei|Ayman Yahya|Fahad Al-Muwallad"}, {"t": "Uruguay", "p": "URU", "s": "Emblem|Sergio Rochet|Franco Israel|Ronald Araújo|José María Giménez|Sebastián Cáceres|Mathías Olivera|Matías Viña|Manuel Ugarte|Federico Valverde|Nicolás de la Cruz|Rodrigo Bentancur|Team Photo|Giorgian de Arrascaeta|Facundo Pellistri|Darwin Núñez|Maximiliano Araújo|Luis Suárez|Facundo Torres|Agustín Canobbio"}, {"t": "France", "p": "FRA", "s": "Emblem|Mike Maignan|Alphonse Areola|Benjamin Pavard|Jules Koundé|Dayot Upamecano|William Saliba|Ibrahima Konaté|Lucas Hernandez|Theo Hernandez|Aurélien Tchouaméni|Eduardo Camavinga|Team Photo|Adrien Rabiot|Antoine Griezmann|Kylian Mbappé|Olivier Giroud|Ousmane Dembélé|Kingsley Coman|Randal Kolo Muani"}, {"t": "Senegal", "p": "SEN", "s": "Emblem|Édouard Mendy|Seny Dieng|Kalidou Koulibaly|Abdou Diallo|Moussa Niakhaté|Youssouf Sabaly|Ismail Jakobs|Idrissa Gueye|Nampalys Mendy|Pape Matar Sarr|Pathé Ciss|Team Photo|Lamine Camara|Sadio Mané|Ismaïla Sarr|Iliman Ndiaye|Boulaye Dia|Nicolas Jackson|Habib Diallo"}, {"t": "Iraq", "p": "IRQ", "s": "Emblem|Jalal Hassan|Fahad Talib|Rebin Sulaka|Saad Natiq|Ali Adnan|Merchas Doski|Hussein Ali|Amir Al-Ammari|Osama Rashid|Bashar Resan|Zidane Iqbal|Team Photo|Ibrahim Bayesh|Ali Jasim|Aymen Hussein|Mohanad Ali|Youssef Amyn|Danilo Al-Saed|Ali Al-Hamadi"}, {"t": "Norway", "p": "NOR", "s": "Emblem|Ørjan Nyland|Egil Selvik|Leo Østigård|Stefan Strandberg|Kristoffer Ajer|Birger Meling|Marcus Holmgren Pedersen|Sander Berge|Martin Ødegaard|Fredrik Aursnes|Patrick Berg|Team Photo|Erling Haaland|Alexander Sørloth|Jørgen Strand Larsen|Oscar Bobb|Antonio Nusa|Ola Solbakken|Kristian Thorstvedt"}, {"t": "Argentina", "p": "ARG", "s": "Emblem|Emiliano Martínez|Gerónimo Rulli|Nahuel Molina|Gonzalo Montiel|Cristian Romero|Nicolás Otamendi|Lisandro Martínez|Nicolás Tagliafico|Rodrigo De Paul|Enzo Fernández|Alexis Mac Allister|Team Photo|Exequiel Palacios|Giovani Lo Celso|Lionel Messi|Ángel Di María|Lautaro Martínez|Julián Álvarez|Nicolás González"}, {"t": "Algeria", "p": "ALG", "s": "Emblem|Anthony Mandrea|Moustapha Zeghba|Aïssa Mandi|Ramy Bensebaini|Ahmed Touba|Rayan Aït-Nouri|Youcef Atal|Ismaël Bennacer|Ramiz Zerrouki|Houssem Aouar|Nabil Bentaleb|Team Photo|Riyad Mahrez|Sofiane Feghouli|Youcef Belaïli|Islam Slimani|Baghdad Bounedjah|Amine Gouiri|Fares Chaïbi"}, {"t": "Austria", "p": "AUT", "s": "Emblem|Alexander Schlager|Patrick Pentz|David Alaba|Kevin Danso|Philipp Lienhart|Maximilian Wöber|Stefan Posch|Xaver Schlager|Nicolas Seiwald|Konrad Laimer|Marcel Sabitzer|Team Photo|Christoph Baumgartner|Marko Arnautović|Michael Gregoritsch|Sasa Kalajdzic|Patrick Wimmer|Florian Kainz|Muhammed Cham"}, {"t": "Jordan", "p": "JOR", "s": "Emblem|Yazeed Abulaila|Abdullah Al-Fakhouri|Yazan Al-Arab|Abdallah Nasib|Salem Al-Ajalin|Ehsan Haddad|Bara' Marei|Nizar Al-Rashdan|Noor Al-Rawabdeh|Mahmoud Al-Mardi|Rajaei Ayed|Team Photo|Musa Al-Taamari|Ali Olwan|Yazan Al-Naimat|Hamza Al-Dardour|Saleh Rateb|Fadi Awad|Ibrahim Sadeh"}, {"t": "Portugal", "p": "POR", "s": "Emblem|Diogo Costa|Rui Patrício|João Cancelo|Rúben Dias|Pepe|António Silva|Gonçalo Inácio|Nuno Mendes|Diogo Dalot|João Palhinha|Bruno Fernandes|Team Photo|Bernardo Silva|Vitinha|Rúben Neves|Cristiano Ronaldo|Rafael Leão|João Félix|Gonçalo Ramos"}, {"t": "Congo DR", "p": "COD", "s": "Emblem|Lionel Mpasi|Dimitry Bertaud|Chancel Mbemba|Arthur Masuaku|Gédéon Kalulu|Henoc Inonga|Dylan Batubinsika|Samuel Moutoussamy|Charles Pickel|Theo Bongonda|Aaron Tshibola|Team Photo|Meschak Elia|Gael Kakuta|Yoane Wissa|Cédric Bakambu|Simon Banza|Fiston Mayele|Silas"}, {"t": "Uzbekistan", "p": "UZB", "s": "Emblem|Utkir Yusupov|Abduvohid Nematov|Rustam Ashurmatov|Abdukodir Khusanov|Umar Eshmurodov|Khojiakbar Alijonov|Farrukh Sayfiev|Otabek Shukurov|Odiljon Hamrobekov|Jamshid Iskanderov|Oston Urunov|Team Photo|Jaloliddin Masharipov|Eldor Shomurodov|Igor Sergeev|Abbosbek Fayzullaev|Khojimat Erkinov|Azizbek Turgunboev|Bobur Abdikholikov"}, {"t": "Colombia", "p": "COL", "s": "Emblem|Camilo Vargas|Álvaro Montero|Daniel Muñoz|Davinson Sánchez|Yerry Mina|Carlos Cuesta|Deiver Machado|Jefferson Lerma|Mateus Uribe|Richard Ríos|Kevin Castaño|Team Photo|James Rodríguez|Luis Díaz|Rafael Santos Borré|Jhon Arias|Luis Sinisterra|Jhon Durán|Jorge Carrascal"}, {"t": "England", "p": "ENG", "s": "Emblem|Jordan Pickford|Aaron Ramsdale|Kyle Walker|Kieran Trippier|John Stones|Harry Maguire|Luke Shaw|Declan Rice|Jude Bellingham|Jordan Henderson|Conor Gallagher|Team Photo|Trent Alexander-Arnold|Phil Foden|Bukayo Saka|Marcus Rashford|Jack Grealish|Harry Kane|Ollie Watkins"}, {"t": "Croatia", "p": "CRO", "s": "Emblem|Dominik Livaković|Ivica Ivušić|Joško Gvardiol|Josip Šutalo|Domagoj Vida|Borna Sosa|Josip Juranović|Marcelo Brozović|Luka Modrić|Mateo Kovačić|Mario Pašalić|Team Photo|Lovro Majer|Ivan Perišić|Andrej Kramarić|Bruno Petković|Nikola Vlašić|Luka Ivanušec|Marko Livaja"}, {"t": "Ghana", "p": "GHA", "s": "Emblem|Lawrence Ati-Zigi|Richard Ofori|Daniel Amartey|Alexander Djiku|Mohammed Salisu|Denis Odoi|Gideon Mensah|Thomas Partey|Salis Abdul Samed|Mohammed Kudus|Majeed Ashimeru|Team Photo|Jordan Ayew|André Ayew|Iñaki Williams|Antoine Semenyo|Joseph Paintsil|Ernest Nuamah|Osman Bukari"}, {"t": "Panama", "p": "PAN", "s": "Emblem|Orlando Mosquera|César Samudio|Andrés Andrade|Fidel Escobar|José Córdoba|Eric Davis|Michael Amir Murillo|Aníbal Godoy|Cristian Martínez|Jovani Welch|Adalberto Carrasquilla|Team Photo|Édgar Bárcenas|Carlos Harvey|Ismael Díaz|Jose Fajardo|Cecilio Waterman|Jose Luiz Rodriguez|Alberto Quintero"}, {"t": "FIFA World Cup History", "p": "FWC", "s": "FWC9:Italy 1934|FWC10:Uruguay 1950|FWC11:West Germany 1954|FWC12:Brazil 1962|FWC13:West Germany 1974|FWC14:Argentina 1986|FWC15:Brazil 1994|FWC16:Brazil 2002|FWC17:Italy 2006|FWC18:Germany 2014|FWC19:Argentina 2022"}, {"t": "Coca-Cola", "p": "CC", "s": "CC1:Lamine Yamal|CC2:Joshua Kimmich|CC3:Harry Kane|CC4:Santiago Giménez|CC5:Josko Gvardiol|CC6:Federico Valverde|CC7:Jefferson Lerma|CC8:Enner Valencia|CC9:Gabriel Magalhães|CC10:Virgil van Dijk|CC11:Alphonso Davies|CC12:Emiliano Martinez|CC13:Raúl Jiménez|CC14:Lautaro Martínez"}];
-const nm = {"MEX": ["Mexico", "Grupo A"], "RSA": ["Sudáfrica", "Grupo A"], "KOR": ["Korea Republic", "Grupo A"], "CZE": ["Czechia", "Grupo A"], "CAN": ["Canadá", "Grupo B"], "BIH": ["Bosnia y Herzegovina", "Grupo B"], "QAT": ["Qatar", "Grupo B"], "SUI": ["Suiza", "Grupo B"], "BRA": ["Brasil", "Grupo C"], "MAR": ["Marruecos", "Grupo C"], "HAI": ["Haití", "Grupo C"], "SCO": ["Escocia", "Grupo C"], "USA": ["Estados Unidos", "Grupo D"], "PAR": ["Paraguay", "Grupo D"], "AUS": ["Australia", "Grupo D"], "TUR": ["Turquía", "Grupo D"], "GER": ["Alemania", "Grupo E"], "CUW": ["Curazao", "Grupo E"], "CIV": ["Costa de Marfil", "Grupo E"], "ECU": ["Ecuador", "Grupo E"], "NED": ["Países Bajos", "Grupo F"], "JPN": ["Japón", "Grupo F"], "SWE": ["Suecia", "Grupo F"], "TUN": ["Túnez", "Grupo F"], "BEL": ["Bélgica", "Grupo G"], "EGY": ["Egipto", "Grupo G"], "EGV": ["Egipto", "Grupo G"], "IRN": ["Irán", "Grupo G"], "NZL": ["Nueva Zelanda", "Grupo G"], "ESP": ["España", "Grupo H"], "CPV": ["Cabo Verde", "Grupo H"], "KSA": ["Arabia Saudita", "Grupo H"], "URU": ["Uruguay", "Grupo H"], "FRA": ["Francia", "Grupo I"], "SEN": ["Senegal", "Grupo I"], "IRQ": ["Irak", "Grupo I"], "NOR": ["Noruega", "Grupo I"], "ARG": ["Argentina", "Grupo J"], "ALG": ["Algeria", "Grupo J"], "AUT": ["Austria", "Grupo J"], "JOR": ["Jordania", "Grupo J"], "POR": ["Portugal", "Grupo K"], "COD": ["R.D. del Congo", "Grupo K"], "UZB": ["Uzbekistan", "Grupo K"], "COL": ["Colombia", "Grupo K"], "ENG": ["Inglaterra", "Grupo L"], "CRO": ["Croacia", "Grupo L"], "GHA": ["Ghana", "Grupo L"], "PAN": ["Panamá", "Grupo L"]};
+const nameMap = {
+    'MEX': ['Mexico', 'Grupo A'], 'RSA': ['Sudáfrica', 'Grupo A'], 'KOR': ['Korea Republic', 'Grupo A'], 'CZE': ['Czechia', 'Grupo A'],
+    'CAN': ['Canadá', 'Grupo B'], 'BIH': ['Bosnia y Herzegovina', 'Grupo B'], 'QAT': ['Qatar', 'Grupo B'], 'SUI': ['Suiza', 'Grupo B'],
+    'BRA': ['Brasil', 'Grupo C'], 'MAR': ['Marruecos', 'Grupo C'], 'HAI': ['Haití', 'Grupo C'], 'SCO': ['Escocia', 'Grupo C'],
+    'USA': ['Estados Unidos', 'Grupo D'], 'PAR': ['Paraguay', 'Grupo D'], 'AUS': ['Australia', 'Grupo D'], 'TUR': ['Turquía', 'Grupo D'],
+    'GER': ['Alemania', 'Grupo E'], 'CUW': ['Curazao', 'Grupo E'], 'CIV': ['Costa de Marfil', 'Grupo E'], 'ECU': ['Ecuador', 'Grupo E'],
+    'NED': ['Países Bajos', 'Grupo F'], 'JPN': ['Japón', 'Grupo F'], 'SWE': ['Suecia', 'Grupo F'], 'TUN': ['Túnez', 'Grupo F'],
+    'BEL': ['Bélgica', 'Grupo G'], 'EGY': ['Egipto', 'Grupo G'], 'EGV': ['Egipto', 'Grupo G'], 'IRN': ['Irán', 'Grupo G'], 'NZL': ['Nueva Zelanda', 'Grupo G'],
+    'ESP': ['España', 'Grupo H'], 'CPV': ['Cabo Verde', 'Grupo H'], 'KSA': ['Arabia Saudita', 'Grupo H'], 'URU': ['Uruguay', 'Grupo H'],
+    'FRA': ['Francia', 'Grupo I'], 'SEN': ['Senegal', 'Grupo I'], 'IRQ': ['Irak', 'Grupo I'], 'NOR': ['Noruega', 'Grupo I'],
+    'ARG': ['Argentina', 'Grupo J'], 'ALG': ['Algeria', 'Grupo J'], 'AUT': ['Austria', 'Grupo J'], 'JOR': ['Jordania', 'Grupo J'],
+    'POR': ['Portugal', 'Grupo K'], 'COD': ['R.D. del Congo', 'Grupo K'], 'UZB': ['Uzbekistan', 'Grupo K'], 'COL': ['Colombia', 'Grupo K'],
+    'ENG': ['Inglaterra', 'Grupo L'], 'CRO': ['Croacia', 'Grupo L'], 'GHA': ['Ghana', 'Grupo L'], 'PAN': ['Panamá', 'Grupo L']
+};
 
-window.DATA.TEAMS = r.map(t => {
-    let isSp = t.t.includes("FIFA") || t.t.includes("Coca") || t.t.includes("We Are") || t.t.includes("Host");
-    let items = t.s.split("|");
-    
-    let st = isSp ? items.map(i => {
-        let p = i.split(":");
-        let c = p[0]; let n = p[1];
-        let nf = c === "00" ? "00" : c.replace(/^([A-Za-z\-]+)(\d+.*)$/, "$1 $2").toUpperCase();
-        return { code: c.toUpperCase(), name: nf, playerName: n, type: "special" };
-    }) : items.map((n, i) => {
-        let num = i + 1; let c = t.p + num;
-        let type = (num === 1) ? "shield" : (num === 13) ? "group" : "normal";
-        return { code: c, name: t.p + " " + num, playerName: n, type: type };
-    });
-    
-    let tName = t.t; let tGroup = isSp ? "Especiales" : "Selección Nacional";
-    if (!isSp && nm[t.p]) { tName = nm[t.p][0]; tGroup = nm[t.p][1]; }
-    
-    return {
-        name: tName, code: isSp ? t.t.replace(/\s+/g, '') : t.p, group: tGroup, stickers: st, type: isSp ? "special" : "normal",
-        icon: isSp ? (t.t.includes("Coca") ? "logo_coca_cola.svg" : (t.t.includes("FIFA") || t.t.includes("We Are") || t.t.includes("Host") ? "logo_fwc.svg" : "⭐")) : (emojis[t.p] || "🏳️")
-    };
-});
+window.DATA.TEAMS = [];
+
+window.LOAD_DATA = async function() {
+    try {
+        const response = await fetch('./album_names_2026_v1.csv?v=43');
+        if (!response.ok) throw new Error('Archivo CSV no encontrado');
+        const text = await response.text();
+        const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+        
+        const teamsDict = {};
+        const teamOrder = [];
+        
+        // Empezamos en 1 para omitir el encabezado del CSV
+        for (let i = 1; i < lines.length; i++) {
+            const row = lines[i];
+            let code = ''; let name = '';
+            const commaIdx = row.indexOf(',');
+            if (commaIdx !== -1) {
+                code = row.substring(0, commaIdx).trim();
+                name = row.substring(commaIdx + 1).trim();
+            }
+            if (!code) continue;
+            
+            let prefix = '00';
+            if (code !== '00') {
+                const match = code.match(/^([A-Za-z\-]+)/);
+                if (match) prefix = match[1];
+                else prefix = code;
+            }
+            if (prefix === 'EGY') prefix = 'EGV';
+            
+            let teamId = prefix;
+            if (prefix === '00') teamId = 'We Are Panini';
+            else if (prefix === 'FWC') {
+                const num = parseInt(code.replace('FWC', ''));
+                if (num >= 1 && num <= 5) teamId = 'FIFA World Cup 2026';
+                else if (num >= 6 && num <= 8) teamId = 'Host Countries and Cities';
+                else teamId = 'FIFA World Cup History';
+            } else if (prefix === 'CC') {
+                teamId = 'Coca-Cola';
+            }
+            
+            if (!teamsDict[teamId]) {
+                teamsDict[teamId] = { id: teamId, prefix: prefix, stickers: [] };
+                teamOrder.push(teamId);
+            }
+            teamsDict[teamId].stickers.push({ c: code, n: name });
+        }
+        
+        window.DATA.TEAMS = teamOrder.map(teamId => {
+            const t = teamsDict[teamId];
+            const isSp = teamId === 'We Are Panini' || teamId.includes('FIFA') || teamId.includes('Host') || teamId === 'Coca-Cola';
+            
+            let st = t.stickers.map((stk, idx) => {
+                let num = idx + 1;
+                let c = stk.c; let n = stk.n;
+                let type = isSp ? 'special' : ((num === 1) ? 'shield' : (num === 13 ? 'group' : 'normal'));
+                let nf = c === '00' ? '00' : c.replace(/^([A-Za-z\-]+)(\d+.*)$/, "$1 $2").toUpperCase();
+                return { code: c.toUpperCase(), name: isSp ? nf : t.prefix + " " + num, playerName: n, type: type };
+            });
+            
+            let tName = teamId; let tGroup = isSp ? "Especiales" : "Selección Nacional";
+            if (!isSp && nameMap[t.prefix]) {
+                tName = nameMap[t.prefix][0];
+                tGroup = nameMap[t.prefix][1];
+            }
+            
+            return {
+                name: tName, code: isSp ? teamId.replace(/\s+/g, '') : t.prefix, group: tGroup, stickers: st, type: isSp ? "special" : "normal",
+                icon: isSp ? (teamId.includes("Coca") ? "logo_coca_cola.svg" : (teamId.includes("FIFA") || teamId.includes("We Are") || teamId.includes("Host") ? "logo_fwc.svg" : "⭐")) : (emojis[t.prefix] || "🏳️")
+            };
+        });
+        
+    } catch (err) {
+        console.error("Error cargando CSV:", err);
+        alert("Error al cargar la base de datos de láminas. Verifica que 'album_names_2026_v1.csv' esté subido correctamente a tu repositorio.");
+    }
+};
