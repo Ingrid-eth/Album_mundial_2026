@@ -98,7 +98,7 @@ window.DATA.TEAMS = compactData.map(team => {
     
     let teamObj = {
         name: team.t,
-        code: team.p,
+        code: isSpecial ? team.t.replace(/[^A-Za-z0-9]/g, '') : team.p,
         group: isSpecial ? "Especiales" : "Selección Nacional",
         stickers: stickers
     };
@@ -114,3 +114,4 @@ window.DATA.TEAMS = compactData.map(team => {
     }
     return teamObj;
 });
+
